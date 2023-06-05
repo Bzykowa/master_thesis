@@ -1,2 +1,4 @@
 artifacts/
 .deps/
+__pycache__
+pythonpath.txt
