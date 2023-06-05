@@ -1,9 +1,11 @@
-from hashlib import sha256
-from Crypto import AES, _mode_gcm
-from pathlib import Path
-import os
+import argparse
 import json
+import os
 from enum import Enum
+from hashlib import sha256
+from pathlib import Path
+
+from Crypto import AES, _mode_gcm
 
 
 class DataType(Enum):
@@ -102,3 +104,15 @@ class ProtocolData:
             self._encrypt_on_disk(raw_data, self._HS_path)
         else:
             raise ValueError("No such DataType.")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="TSA Client")
+    parser.add_argument(
+        "--password", default="", type=str,
+        help="Provide a password to recover encrypted file. " +
+        "Remember it well because there is no recovery for it."
+    )
+    args = parser.parse_args()
+    data = ProtocolData(args.password)
