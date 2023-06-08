@@ -35,7 +35,7 @@ class ProtocolData:
             # Generate a pair of private exponents
             c_1_exps = [{"k": randsn(), "l": randsn()}]
             # Generate first commitment
-            c_1 = {"1": pedersen_com(
+            c_1 = {1: pedersen_com(
                 c_1_exps[0]["k"], c_1_exps[0]["l"], sbmul(keys["h"])
             )}
             self.write_data(DataType.P, c_1_exps)
@@ -43,7 +43,8 @@ class ProtocolData:
             # Create a certificate for A and c_1 in a form of
             # a Schnorr signature
             A, X, S = schnorr_create(keys["a"], hashsn(sbmul(keys["a"]), c_1))
-            cert = {"0": {"pk": A, "cert1": X, "cert2": S}}
+            cert = {0: {"X": X, "s": S, "l": 0, "i": 0,
+                        "data": hashsn(A, c_1)}}
             self.write_data(DataType.HS, cert)
 
     def _derive_data_key(self) -> str:

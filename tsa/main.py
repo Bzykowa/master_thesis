@@ -1,5 +1,6 @@
 import argparse
 from protocol_data import ProtocolData
+from stamp_and_extend import StampExtendProtocol
 
 
 if __name__ == "__main__":
@@ -12,3 +13,4 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     data = ProtocolData(args.password)
+    stamp_extend = StampExtendProtocol(data)
