@@ -5,7 +5,7 @@ from hashlib import sha256
 from pathlib import Path
 
 from Crypto import AES, _mode_gcm
-from pysolcrypto.altbn128 import randsn, sbmul, hashsn
+from pysolcrypto.altbn128 import randsn, sbmul, hashs
 from pysolcrypto.pedersen import pedersen_com
 from pysolcrypto.schnorr import schnorr_create
 
@@ -42,9 +42,11 @@ class ProtocolData:
             self.write_data(DataType.C, c_1)
             # Create a certificate for A and c_1 in a form of
             # a Schnorr signature
-            A, X, S = schnorr_create(keys["a"], hashsn(sbmul(keys["a"]), c_1))
+            A = sbmul(keys["a"])
+            cert_m = hashs(A[0].n, A[1].n, c_1[0].n, c_1[1].n)
+            _, X, S = schnorr_create(keys["a"], cert_m)
             cert = {0: {"X": X, "s": S, "l": 0, "i": 0,
-                        "data": hashsn(A, c_1)}}
+                        "data": cert_m}}
             self.write_data(DataType.HS, cert)
 
     def _derive_data_key(self) -> str:

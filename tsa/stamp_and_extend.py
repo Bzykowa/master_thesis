@@ -1,6 +1,6 @@
 from typing import Any
 from protocol_data import ProtocolData, DataType
-from pysolcrypto.altbn128 import sbmul, randsn, hashsn
+from pysolcrypto.altbn128 import sbmul, randsn, hashs
 from pysolcrypto.pedersen import pedersen_com
 from pysolcrypto.schnorr import schnorr_create
 
@@ -39,7 +39,11 @@ class StampExtendProtocol:
         k_i = kl["k"]
         l_i = kl["l"]
         # Message (H(HSi−1), Hi, c2i, c2i+1, l, i)
-        m = hashsn(hashsn(self.HS[i-1]), data, c_2i, c_2i1, l_i, i)
+        hs1 = self.HS[i-1]
+        hs1_hash = hashs(hs1["X"][0].n, hs1["X"][1].n,
+                         hs1["s"], hs1["l"], hs1["i"], hs1["data"])
+        m = hashs(hs1_hash, data, c_2i[0].n,
+                  c_2i[1].n, c_2i1[0].n, c_2i1[1].n, l_i, i)
         # Form a timestamp HS_i
         _, X, s = schnorr_create(self.a, m, k_i)
         T_i = {"X": X, "s": s, "l": l_i, "i": i, "data": data}
