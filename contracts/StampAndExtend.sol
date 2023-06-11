@@ -4,6 +4,7 @@ pragma solidity ^0.8.18;
 import "contracts/libraries/Curve.sol";
 import "contracts/libraries/Schnorr.sol";
 
+// Partial implementation of Stamp and Extend scheme: https://eprint.iacr.org/2013/730.pdf
 contract TSA {
     // Stored public data
     struct TimeStampEntry {
@@ -22,7 +23,8 @@ contract TSA {
     // The generator h
     Curve.G1Point public H;
     // Data waiting to be timestamped
-    mapping(address => uint256) private pendingTimeStamps;
+    mapping(address => uint256) public pendingTimeStamps;
+    address[] private pendingIndexes;
     // Addresses allowed to publish a timestamp
     mapping(address => bool) internal issuers;
 
@@ -53,17 +55,34 @@ contract TSA {
 
     // Getters
 
-    function getHS() public view returns (TimeStampEntry[] memory) {
+    function getHS() external view returns (TimeStampEntry[] memory) {
         return HS;
     }
 
-    function getC() public view returns (Curve.G1Point[] memory) {
+    function getC() external view returns (Curve.G1Point[] memory) {
         return C;
+    }
+
+    function getPendingData()
+        external
+        view
+        returns (address[] memory requesters, uint256[] memory data)
+    {
+        requesters = pendingIndexes;
+        data = new uint256[](requesters.length);
+        for (uint256 i = 0; i < requesters.length; i++) {
+            data[i] = pendingTimeStamps[requesters[i]];
+        }
     }
 
     // Request a timestamp
     function requestTimeStamp(uint256 data) external {
+        require(
+            pendingTimeStamps[msg.sender] == 0,
+            "You already requested a timestamp!"
+        );
         pendingTimeStamps[msg.sender] = data;
+        pendingIndexes.push(msg.sender);
         emit TimeStampRequested(msg.sender, data);
     }
 
@@ -74,6 +93,10 @@ contract TSA {
         address requester
     ) external {
         require(issuers[msg.sender], "Only approved accounts allowed!");
+        require(
+            pendingTimeStamps[msg.sender] != 0,
+            "This person didn't request a timestamp!"
+        );
         // Extend HS
         TimeStampEntry memory HSi = TimeStampEntry(
             Curve.G1Point(ti[0], ti[1]),
@@ -88,7 +111,16 @@ contract TSA {
         C.push(Curve.G1Point(comms[2], comms[3]));
         // Let the requester know that timestamp has been issued
         emit TimeStampIssued(requester, HSi);
+        // Delete address from pending record
         delete pendingTimeStamps[requester];
+        address[] memory _requesters = pendingIndexes;
+        for (uint256 i = 0; i < _requesters.length; i++) {
+            if (_requesters[i] == requester) {
+                pendingIndexes[i] = _requesters[_requesters.length - 1];
+                pendingIndexes.pop();
+                break;
+            }
+        }
     }
 
     // Binary logarithm floored
@@ -132,6 +164,7 @@ contract TSA {
     function verifyTimeStamp(uint256 i) external view returns (bool valid) {
         require(i >= 1, "Accepting only i >= 1.");
         TimeStampEntry[] memory _HS = HS;
+        require(i < _HS.length, "We haven't issued this timestamp yet.");
         Curve.G1Point[] memory _C = C;
         uint256[2] memory pk = [pubKey.X, pubKey.Y];
         Curve.G1Point memory _H = H;

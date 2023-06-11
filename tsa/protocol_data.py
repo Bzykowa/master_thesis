@@ -65,7 +65,6 @@ class ProtocolData:
         cipher = AES.new(key_bytes, AES.MODE_GCM)
 
         ciphertext, tag = cipher.encrypt_and_digest(data)
-        print(len(tag))
 
         return cipher.nonce + tag + ciphertext
 
@@ -113,13 +112,11 @@ class ProtocolData:
             raw_data = self._decrypt_from_disk(self._HS_path)
         else:
             raise ValueError("No such DataType.")
-        print(raw_data)
         return json.loads(raw_data)
 
     def write_data(self, type: DataType, data):
         """Write to requested file in JSON format."""
         raw_data = json.dumps(data)
-        print(raw_data)
         if type == DataType.SK:
             self._encrypt_on_disk(raw_data, self._key_path)
         elif type == DataType.P:
