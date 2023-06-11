@@ -4,3 +4,7 @@ __pycache__
 pythonpath.txt
 .vscode
 api_key
+acc_pk
+*.zip
+.json
+scripts/
