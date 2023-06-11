@@ -1,6 +1,6 @@
 from __future__ import print_function
-from utils import hashs
-from altbn128 import hashpn, hashsn, mulmodn, sbmul, addmodn, randsn
+from .utils import hashs
+from .altbn128 import hashpn, hashsn, mulmodn, sbmul, addmodn, randsn
 from past.builtins import long
 from py_ecc.bn128 import add, multiply
 

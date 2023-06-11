@@ -3,7 +3,7 @@ from past.builtins import long
 
 from py_ecc.bn128 import multiply, curve_order, G1, field_modulus, FQ
 
-from utils import hashs, bytes_to_int, powmod
+from .utils import hashs, bytes_to_int, powmod
 
 
 def asint(x): return x.n if isinstance(x, FQ) else x

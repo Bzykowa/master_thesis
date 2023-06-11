@@ -4,7 +4,7 @@ https://www.cs.cornell.edu/courses/cs754/2001fa/129.PDF
 
 
 from py_ecc.bn128 import add, multiply
-from altbn128 import sbmul
+from .altbn128 import sbmul
 
 
 def pedersen_com(k_i, l_i, H):
