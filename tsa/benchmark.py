@@ -85,17 +85,17 @@ def graph_ts_create(times: List[int]):
 def test_ts_create():
     # time test for timestamps
     for _ in range(100):
-        #start = time.perf_counter()
+        start = time.perf_counter()
         test_protocol.create_timestamp(randsn())
-        #end = time.perf_counter()
-        #ts_create_times.append(end-start)
+        end = time.perf_counter()
+        ts_create_times.append(end-start)
 
 
 if __name__ == "__main__":
     password = "benchmark"
     data_storage = ProtocolData(password, Path().absolute())
     test_ts_create()
-    """
+
     graph_ts_create(ts_create_times)
     print(f"Mean timestamp creation time: {mean(ts_create_times)}")
 
@@ -116,4 +116,4 @@ if __name__ == "__main__":
         f"Nonencrypted C size for 10 K timestamps: {getsizeof(test_protocol.C) / (1024 * 1024)} MB")
     print(
         f"Nonencrypted HS size for 10 K timestamps: {getsizeof(test_protocol.HS) / (1024 * 1024)} MB")
-    """
+
