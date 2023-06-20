@@ -1,0 +1,16 @@
+Test on 100 timestamps generated
+mprof: Sampling memory every 0.1s
+running new process
+running as a Python program...
+Filename: benchmark.py
+
+Line #    Mem usage    Increment  Occurrences   Line Contents
+=============================================================
+    84     89.5 MiB     89.5 MiB           1   @profile
+    85                                         def test_ts_create():
+    86                                             # time test for timestamps
+    87     89.6 MiB     -3.4 MiB         101       for _ in range(100):
+    88                                                 #start = time.perf_counter()
+    89     89.6 MiB     -3.2 MiB         100           test_protocol.create_timestamp(randsn())
+    90                                                 #end = time.perf_counter()
+    91                                                 #ts_create_times.append(end-start)

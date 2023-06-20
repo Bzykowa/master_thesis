@@ -1,0 +1,4 @@
+Test on 10000 timestamps generated
+Nonencrypted P size for 10 K timestamps: 0.08123016357421875 MB
+Nonencrypted C size for 10 K timestamps: 0.562591552734375 MB
+Nonencrypted HS size for 10 K timestamps: 0.28133392333984375 MB

@@ -8,3 +8,4 @@ acc_pk
 *.zip
 .json
 scripts/
+.tsa/

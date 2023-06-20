@@ -1,0 +1,2 @@
+Test on 10000 timestamps generated
+Mean timestamp creation time: 0.21986167307982687 seconds

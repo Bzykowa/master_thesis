@@ -18,9 +18,9 @@ class DataType(Enum):
 
 
 class ProtocolData:
-    def __init__(self, passphrase: str) -> None:
+    def __init__(self, passphrase: str, home_path = Path.home()) -> None:
         self.passphrase = passphrase
-        self._secret_path = Path.home() / ".tsa"
+        self._secret_path = home_path / ".tsa"
         self._P_path = self._secret_path / "commitment_exponents"
         self._C_path = self._secret_path / "commitments"
         self._HS_path = self._secret_path / "timestamps"
