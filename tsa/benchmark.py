@@ -7,8 +7,10 @@ from pathlib import Path
 from protocol_data import ProtocolData, DataType
 from pysolcrypto.altbn128 import sbmul, randsn, hashs
 from pysolcrypto.pedersen import pedersen_com
-from pysolcrypto.schnorr import schnorr_create
+from pysolcrypto.schnorr import schnorr_create, schnorr_verify
+from py_ecc.bn128 import add, multiply, FQ
 
+import math
 import os
 import time
 
@@ -65,6 +67,28 @@ class StampExtendProtocolTest:
         # Return the timestamp
         return T_i, self.C[str(2*i)], self.C[str((2*i)+1)]
 
+    def verify_chain(self, i: int) -> bool:
+        """Verify the chain at i-th position"""
+        for alpha in range(int(math.log2(i))):
+            j = i // (2 ** alpha)
+
+            hs1 = self.HS[str(j-1)]
+            hs1_hash = hashs(hs1["X"][0], hs1["X"][1],
+                             hs1["s"], hs1["l"], hs1["i"], hs1["data"])
+            c2j = self.C[str(2*j)]
+            c2j1 = self.C[str(2*j+1)]
+            m = hashs(hs1_hash, self.HS[str(j)]["data"], c2j[0],
+                      c2j[1], c2j1[0], c2j1[1], self.HS[str(j)]["l"], self.HS[str(j)]["i"])
+            X = (FQ(self.HS[str(j)]["X"][0]), FQ(self.HS[str(j)]["X"][1]))
+            proof = schnorr_verify(self.A, X, self.HS[str(j)]["s"], m)
+            cj = add(X, multiply(self.h, self.HS[str(j)]["l"]))
+
+            if (not proof or cj[0].n != self.C[str(j)][0] or cj[1].n != self.C[str(j)][1]):
+                return False
+        cert_m = hashs(self.A[0].n, self.A[1].n, self.c1[0].n, self.c1[1].n)
+        X0 = (FQ(self.HS["0"]["X"][0]), FQ(self.HS["0"]["X"][1]))
+        return schnorr_verify(self.A, X0, self.HS["0"]["s"], cert_m)
+
 
 test_protocol = StampExtendProtocolTest()
 ts_create_times = []
@@ -84,11 +108,21 @@ def graph_ts_create(times: List[int]):
 @profile
 def test_ts_create():
     # time test for timestamps
-    for _ in range(100):
+    for _ in range(10000):
         start = time.perf_counter()
         test_protocol.create_timestamp(randsn())
         end = time.perf_counter()
         ts_create_times.append(end-start)
+
+
+@profile
+def test_verify():
+    i = len(test_protocol.HS) - 1
+    start = time.perf_counter()
+    res = test_protocol.verify_chain(i)
+    end = time.perf_counter()
+    print(f"Time of verifying {i} length chain: {end-start}")
+    print(f"result = {res}")
 
 
 if __name__ == "__main__":
@@ -98,6 +132,7 @@ if __name__ == "__main__":
 
     graph_ts_create(ts_create_times)
     print(f"Mean timestamp creation time: {mean(ts_create_times)}")
+    test_verify()
 
     # Test size of encrypted storage
     data_storage.write_data(DataType.P, test_protocol.P)
@@ -116,4 +151,3 @@ if __name__ == "__main__":
         f"Nonencrypted C size for 10 K timestamps: {getsizeof(test_protocol.C) / (1024 * 1024)} MB")
     print(
         f"Nonencrypted HS size for 10 K timestamps: {getsizeof(test_protocol.HS) / (1024 * 1024)} MB")
-
