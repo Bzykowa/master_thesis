@@ -1,4 +1,0 @@
-Test on 10000 timestamps generated
-Encrypted .tsa\commitment_exponents size for 10 K timestamps: 1.6177921295166016 MB
-Encrypted .tsa\commitments size for 10 K timestamps: 3.205855369567871 MB
-Encrypted .tsa\timestamps size for 10 K timestamps: 4.195772171020508 MB
