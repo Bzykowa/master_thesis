@@ -105,7 +105,6 @@ def graph_ts_create(times: List[int]):
     plt.savefig('ts_create_times.png')
 
 
-@profile
 def test_ts_create():
     # time test for timestamps
     for _ in range(10000):
@@ -115,7 +114,6 @@ def test_ts_create():
         ts_create_times.append(end-start)
 
 
-@profile
 def test_verify():
     i = len(test_protocol.HS) - 1
     start = time.perf_counter()
